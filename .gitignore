@@ -1,19 +1,19 @@
-Backend
+# Backend
 
 target/ *.class .mvn/wrapper/maven-wrapper.jar
 
-Frontend
+# Frontend
 
 node_modules/ dist/
 
-Ambiente
+# Ambiente
 
 .env
 
-IDEs
+# IDEs
 
 .idea/ .vscode/ *.iml
 
-Sistema
+# Sistema
 
 .DS_Store Thumbs.db
