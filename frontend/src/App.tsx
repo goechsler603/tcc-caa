@@ -1,80 +1,124 @@
 import { useState } from 'react'
+import './App.css'
+import Prancha from './components/Prancha'
+import PictogramaSearchModal from './components/PictogramaSearchModal'
+import type { Celulas, Pictograma } from './types'
 
-type Pictograma = {
-  id: number
-  palavra: string
-  url: string
-}
+const limitar = (valor: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, valor))
 
 function App() {
-  const [busca, setBusca] = useState('')
-  const [resultados, setResultados] = useState<Pictograma[]>([])
-  const [carregando, setCarregando] = useState(false)
-  const [erro, setErro] = useState('')
-  const [buscou, setBuscou] = useState(false)
+  const [titulo, setTitulo] = useState('Prancha 1')
+  const [colunas, setColunas] = useState(4)
+  const [linhas, setLinhas] = useState(3)
+  const [celulas, setCelulas] = useState<Celulas>({})
+  const [celulaAtiva, setCelulaAtiva] = useState<string | null>(null)
 
-  async function buscar() {
-    if (!busca.trim()) return
-    setCarregando(true)
-    setErro('')
-    try {
-      const res = await fetch(`/api/pictogramas?busca=${encodeURIComponent(busca)}`)
-      if (!res.ok) throw new Error()
-      setResultados(await res.json())
-      setBuscou(true)
-    } catch {
-      setErro('Não foi possível buscar os pictogramas.')
-      setResultados([])
-    } finally {
-      setCarregando(false)
+  function selecionar(p: Pictograma) {
+    if (celulaAtiva === null) return
+    setCelulas((anterior) => ({ ...anterior, [celulaAtiva]: p }))
+    setCelulaAtiva(null)
+  }
+
+  function remover(chave: string) {
+    setCelulas((anterior) => {
+      const novo = { ...anterior }
+      delete novo[chave]
+      return novo
+    })
+  }
+
+  function novaPrancha() {
+    if (
+      Object.keys(celulas).length > 0 &&
+      !window.confirm('Descartar a prancha atual e começar uma nova?')
+    ) {
+      return
     }
+    setTitulo('Prancha 1')
+    setCelulas({})
   }
 
   return (
-    <div style={{ padding: 24, fontFamily: 'sans-serif', maxWidth: 960, margin: '0 auto' }}>
-      <h1>Pictogramas</h1>
+    <div className="app">
+      <aside className="sidebar">
+        <div className="logo">AMA</div>
+        <nav>
+          <button className="nav-item ativo">Pranchas</button>
+          <button className="nav-item" disabled title="Em breve">
+            Arquivos
+          </button>
+          <button className="nav-item" disabled title="Em breve">
+            Pictogramas
+          </button>
+        </nav>
+        <div className="sidebar-rodape">
+          <button className="nav-item" disabled>
+            Usuário
+          </button>
+        </div>
+      </aside>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+      <main className="conteudo">
+        <div className="faixa" />
+
+        <div className="barra">
+          <button className="botao" onClick={novaPrancha}>
+            + Nova Prancha
+          </button>
+          <label className="campo">
+            Colunas
+            <input
+              type="number"
+              min={1}
+              max={8}
+              value={colunas}
+              onChange={(e) =>
+                setColunas(limitar(Number(e.target.value) || 1, 1, 8))
+              }
+            />
+          </label>
+          <label className="campo">
+            Linhas
+            <input
+              type="number"
+              min={1}
+              max={6}
+              value={linhas}
+              onChange={(e) =>
+                setLinhas(limitar(Number(e.target.value) || 1, 1, 6))
+              }
+            />
+          </label>
+        </div>
+
         <input
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && buscar()}
-          placeholder="Digite uma palavra (ex.: casa)"
-          style={{ flex: 1, padding: 8, fontSize: 16 }}
+          className="titulo"
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+          aria-label="Título da prancha"
         />
-        <button onClick={buscar} style={{ padding: '8px 16px', fontSize: 16 }}>
-          Buscar
-        </button>
-      </div>
 
-      {carregando && <p>Buscando...</p>}
-      {erro && <p style={{ color: 'crimson' }}>{erro}</p>}
-      {buscou && !carregando && !erro && resultados.length === 0 && (
-        <p>Nenhum resultado.</p>
+        <Prancha
+          colunas={colunas}
+          linhas={linhas}
+          celulas={celulas}
+          onCelulaClick={setCelulaAtiva}
+          onRemover={remover}
+        />
+
+        <p className="credito">
+          Pictogramas: ARASAAC (arasaac.org), de Sergio Palao, propriedade do
+          Governo de Aragão, licença CC BY-NC-SA.
+        </p>
+      </main>
+
+      {celulaAtiva !== null && (
+        <PictogramaSearchModal
+          onSelect={selecionar}
+          onClose={() => setCelulaAtiva(null)}
+        />
       )}
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-          gap: 12,
-        }}
-      >
-        {resultados.map((p) => (
-          <div
-            key={p.id}
-            style={{ border: '1px solid #ccc', borderRadius: 8, padding: 8, textAlign: 'center' }}
-          >
-            <img src={p.url} alt={p.palavra} style={{ width: '100%' }} />
-            <div>{p.palavra}</div>
-          </div>
-        ))}
-      </div>
-
-      <p style={{ marginTop: 24, fontSize: 12, color: '#555' }}>
-        Pictogramas: ARASAAC (arasaac.org), de Sergio Palao, propriedade do Governo de
-        Aragão, licença CC BY-NC-SA.
-      </p>
     </div>
   )
 }
