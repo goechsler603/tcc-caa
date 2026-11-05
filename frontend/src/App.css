@@ -287,3 +287,25 @@ body {
 .erro {
   color: crimson;
 }
+.barra select {
+  padding: 7px;
+  font-size: 14px;
+  max-width: 220px;
+}
+
+.botao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.botao.perigo {
+  background: #e53935;
+  margin-left: auto;
+}
+
+.mensagem {
+  text-align: center;
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #0b5cc6;
+}
