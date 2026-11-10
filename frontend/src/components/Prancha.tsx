@@ -1,4 +1,17 @@
+import type { CSSProperties } from 'react'
 import type { Celulas } from '../types'
+
+const HORIZONTAL = {
+  esquerda: 'flex-start',
+  centro: 'center',
+  direita: 'flex-end',
+} as const
+
+const VERTICAL = {
+  topo: 'flex-start',
+  meio: 'center',
+  base: 'flex-end',
+} as const
 
 type Props = {
   colunas: number
@@ -23,24 +36,47 @@ export default function Prancha({
   }
 
   return (
-    <div
+       <div
       className="prancha"
-      style={{ gridTemplateColumns: `repeat(${colunas}, 1fr)` }}
+      style={
+        {
+          gridTemplateColumns: `repeat(${colunas}, 1fr)`,
+          '--cols': colunas,
+          '--rows': linhas,
+        } as CSSProperties
+      }
     >
       {chaves.map((chave) => {
-        const p = celulas[chave]
+        const c = celulas[chave]
+        const estilo: CSSProperties = c
+          ? {
+              background: c.corFundo ?? undefined,
+              boxShadow: c.corBorda ? `inset 0 0 0 5px ${c.corBorda}` : undefined,
+            }
+          : {}
+
         return (
           <div
             key={chave}
             className="celula"
+            style={estilo}
             role="button"
             tabIndex={0}
             onClick={() => onCelulaClick(chave)}
             onKeyDown={(e) => e.key === 'Enter' && onCelulaClick(chave)}
           >
-            {p && (
+            {c && (
               <>
-                <img src={p.url} alt={p.palavra} />
+                <div
+                  className="celula-conteudo"
+                  style={{
+                    alignItems: HORIZONTAL[c.alinhHorizontal],
+                    justifyContent: VERTICAL[c.alinhVertical],
+                  }}
+                >
+                  <img src={c.url} alt={c.texto} />
+                  {c.texto && <span className="celula-texto">{c.texto}</span>}
+                </div>
                 <button
                   className="celula-remover"
                   aria-label="Remover pictograma"

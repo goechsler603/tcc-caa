@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import Prancha from './components/Prancha'
 import PictogramaSearchModal from './components/PictogramaSearchModal'
-import type { Celulas, Pictograma } from './types'
+import EditarCelulaModal from './components/EditarCelulaModal'
+import type { Celula, Celulas, Pictograma } from './types'
+import { exportarPdf } from './exportarPdf'
 import {
   atualizarPrancha,
   buscarPrancha,
@@ -18,14 +20,22 @@ import {
 const limitar = (valor: number, min: number, max: number) =>
   Math.min(max, Math.max(min, valor))
 
+const FORMATO_PADRAO = {
+  alinhHorizontal: 'centro',
+  alinhVertical: 'meio',
+  corBorda: null,
+  corFundo: null,
+} as const
+
 function App() {
   const [pranchaId, setPranchaId] = useState<number | null>(null)
   const [titulo, setTitulo] = useState('Prancha 1')
   const [colunas, setColunas] = useState(4)
   const [linhas, setLinhas] = useState(3)
   const [celulas, setCelulas] = useState<Celulas>({})
-  const [celulaAtiva, setCelulaAtiva] = useState<string | null>(null)
-
+  const [buscando, setBuscando] = useState<string | null>(null)
+  const [editando, setEditando] = useState<string | null>(null)
+  const [orientacao, setOrientacao] = useState<'landscape' | 'portrait'>('landscape')
   const [salvas, setSalvas] = useState<PranchaResumo[]>([])
   const [mensagem, setMensagem] = useState('')
   const [ocupado, setOcupado] = useState(false)
@@ -36,10 +46,29 @@ function App() {
       .catch(() => setMensagem('Não foi possível carregar as pranchas salvas.'))
   }, [])
 
+  function aoClicarCelula(chave: string) {
+    if (celulas[chave]) setEditando(chave)
+    else setBuscando(chave)
+  }
+
   function selecionar(p: Pictograma) {
-    if (celulaAtiva === null) return
-    setCelulas((anterior) => ({ ...anterior, [celulaAtiva]: p }))
-    setCelulaAtiva(null)
+    if (buscando === null) return
+    const chave = buscando
+    setCelulas((anterior) => ({
+      ...anterior,
+      [chave]: {
+        ...FORMATO_PADRAO,
+        ...anterior[chave],
+        arasaacId: p.id,
+        url: p.url,
+        texto: p.palavra,
+      },
+    }))
+    setBuscando(null)
+  }
+
+  function atualizarCelula(chave: string, nova: Celula) {
+    setCelulas((anterior) => ({ ...anterior, [chave]: nova }))
   }
 
   function remover(chave: string) {
@@ -48,6 +77,7 @@ function App() {
       delete novo[chave]
       return novo
     })
+    setEditando(null)
   }
 
   function reiniciar() {
@@ -111,6 +141,27 @@ function App() {
     } finally {
       setOcupado(false)
     }
+
+  }
+
+   async function baixarPdf() {
+    setOcupado(true)
+    setMensagem('Gerando PDF...')
+    try {
+      const falhas = await exportarPdf({ titulo, colunas, linhas, celulas, orientacao })
+      setMensagem(
+        falhas > 0
+          ? `PDF baixado, mas ${falhas} imagem(ns) não puderam ser incluídas.`
+          : 'PDF baixado.',
+      )
+    } catch (e) {
+      console.error('Erro ao gerar PDF:', e)
+      setMensagem(
+        `Não foi possível gerar o PDF: ${e instanceof Error ? e.message : 'erro desconhecido'}`,
+      )
+    }  finally {
+      setOcupado(false)
+    }
   }
 
   async function excluir() {
@@ -130,7 +181,8 @@ function App() {
   }
 
   return (
-    <div className="app">
+      <div className={`app ${orientacao === 'landscape' ? 'paisagem' : 'retrato'}`}>
+      <style>{`@page { size: A4 ${orientacao}; margin: 10mm; }`}</style>
       <aside className="sidebar">
         <div className="logo">AMA</div>
         <nav>
@@ -153,6 +205,21 @@ function App() {
         <div className="faixa" />
 
         <div className="barra">
+          
+                    <select
+            value={orientacao}
+            onChange={(e) => setOrientacao(e.target.value as 'landscape' | 'portrait')}
+            aria-label="Orientação da folha"
+          >
+            <option value="landscape">Folha: paisagem</option>
+            <option value="portrait">Folha: retrato</option>
+          </select>
+          <button className="botao" onClick={baixarPdf} disabled={ocupado}>
+            Baixar PDF
+          </button>
+          <button className="botao" onClick={() => window.print()} disabled={ocupado}>
+            Imprimir
+          </button>
           <button className="botao" onClick={novaPrancha} disabled={ocupado}>
             + Nova Prancha
           </button>
@@ -197,11 +264,7 @@ function App() {
             />
           </label>
           {pranchaId !== null && (
-            <button
-              className="botao perigo"
-              onClick={excluir}
-              disabled={ocupado}
-            >
+            <button className="botao perigo" onClick={excluir} disabled={ocupado}>
               Excluir
             </button>
           )}
@@ -225,7 +288,7 @@ function App() {
           colunas={colunas}
           linhas={linhas}
           celulas={celulas}
-          onCelulaClick={setCelulaAtiva}
+          onCelulaClick={aoClicarCelula}
           onRemover={remover}
         />
 
@@ -235,10 +298,23 @@ function App() {
         </p>
       </main>
 
-      {celulaAtiva !== null && (
+      {buscando !== null && (
         <PictogramaSearchModal
           onSelect={selecionar}
-          onClose={() => setCelulaAtiva(null)}
+          onClose={() => setBuscando(null)}
+        />
+      )}
+
+      {editando !== null && celulas[editando] && (
+        <EditarCelulaModal
+          celula={celulas[editando]}
+          onChange={(nova) => atualizarCelula(editando, nova)}
+          onTrocar={() => {
+            setBuscando(editando)
+            setEditando(null)
+          }}
+          onRemover={() => remover(editando)}
+          onClose={() => setEditando(null)}
         />
       )}
     </div>

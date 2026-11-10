@@ -309,3 +309,200 @@ body {
   font-size: 14px;
   color: #0b5cc6;
 }
+.celula-conteudo {
+  flex: 1;
+  align-self: stretch;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.celula-conteudo img {
+  width: 60%;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.celula-texto {
+  max-width: 100%;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.modal-fundo.leve {
+  background: rgba(10, 30, 60, 0.2);
+}
+
+.modal-editar {
+  width: min(420px, 100%);
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 12px;
+}
+
+.campo-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.campo-texto input {
+  padding: 8px;
+  font-size: 16px;
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.grupo-botoes {
+  display: flex;
+  gap: 6px;
+}
+
+.opcao {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #b7d0ee;
+  border-radius: 6px;
+  background: #fff;
+  color: #0b5cc6;
+  cursor: pointer;
+}
+
+.opcao.ativa {
+  background: #1b6fe0;
+  border-color: #1b6fe0;
+  color: #fff;
+}
+
+.campo-cor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.campo-cor span {
+  flex: 1;
+}
+
+.campo-cor input[type='color'] {
+  width: 44px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid #b7d0ee;
+  background: none;
+}
+
+.campo-cor button {
+  padding: 5px 10px;
+  border: 1px solid #b7d0ee;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.campo-cor button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-acoes {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.modal-acoes .botao.perigo {
+  margin-left: 0;
+}
+
+.app.paisagem {
+  --area-w: 277mm;
+  --area-h: 190mm;
+}
+
+.app.retrato {
+  --area-w: 190mm;
+  --area-h: 277mm;
+}
+.app.paisagem {
+  --area-w: 277mm;
+  --area-h: 190mm;
+}
+
+.app.retrato {
+  --area-w: 190mm;
+  --area-h: 277mm;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    background: #fff !important;
+  }
+
+  /* Esconde tudo o que não é o conteúdo principal */
+  .app > *:not(.conteudo) {
+    display: none !important;
+  }
+
+  /* Dentro do conteúdo, esconde tudo, menos a prancha */
+  .conteudo > *:not(.prancha) {
+    display: none !important;
+  }
+
+  .app {
+    display: block !important;
+    min-height: 0 !important;
+    height: auto !important;
+    background: #fff !important;
+  }
+
+  .conteudo {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .prancha {
+    display: grid !important;
+    max-width: none !important;
+    margin: 0 auto !important;
+    border: 1px solid #333 !important;
+    width: min(var(--area-w), calc(var(--area-h) * var(--cols, 4) / var(--rows, 3))) !important;
+    break-inside: avoid;
+  }
+
+  .celula {
+    border: 1px solid #999 !important;
+    cursor: default;
+  }
+
+  .celula-remover {
+    display: none !important;
+  }
+}
