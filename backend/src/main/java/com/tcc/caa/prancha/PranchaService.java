@@ -86,6 +86,10 @@ public class PranchaService {
             celula.setArasaacId(c.arasaacId());
             celula.setTexto(c.texto());
             celula.setImagemUrl(c.imagemUrl());
+            celula.setAlinhHorizontal(c.alinhHorizontal());
+            celula.setAlinhVertical(c.alinhVertical());
+            celula.setCorBorda(c.corBorda());
+            celula.setCorFundo(c.corFundo());
             prancha.getCelulas().add(celula);
         }
     }
@@ -93,7 +97,9 @@ public class PranchaService {
     private PranchaDTO paraDTO(Prancha p) {
         List<CelulaDTO> celulas = p.getCelulas().stream()
                 .map(c -> new CelulaDTO(c.getLinha(), c.getColuna(),
-                        c.getArasaacId(), c.getTexto(), c.getImagemUrl()))
+                        c.getArasaacId(), c.getTexto(), c.getImagemUrl(),
+                        c.getAlinhHorizontal(), c.getAlinhVertical(),
+                        c.getCorBorda(), c.getCorFundo()))
                 .toList();
         return new PranchaDTO(p.getId(), p.getTitulo(), p.getColunas(), p.getLinhas(), celulas);
     }

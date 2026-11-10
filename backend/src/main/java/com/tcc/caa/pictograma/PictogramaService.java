@@ -15,6 +15,8 @@ public class PictogramaService {
     private static final String IMAGEM = "https://static.arasaac.org/pictograms/%d/%d_300.png";
     private static final String IDIOMA = "br";
     private static final int LIMITE = 40;
+    private static final String IMAGEM_GRANDE = "https://static.arasaac.org/pictograms/{id}/{id}_500.png";
+    private static final String IMAGEM_MEDIA = "https://static.arasaac.org/pictograms/{id}/{id}_300.png";
 
     private final RestClient restClient = RestClient.create();
 
@@ -47,6 +49,25 @@ public class PictogramaService {
         } catch (HttpClientErrorException.NotFound e) {
             return List.of();
         }
+    }
+    public byte[] imagem(long id) {
+        if (id <= 0) {
+            return null;
+        }
+        for (String modelo : List.of(IMAGEM_GRANDE, IMAGEM_MEDIA)) {
+            try {
+                byte[] bytes = restClient.get()
+                        .uri(modelo, java.util.Map.of("id", id))
+                        .retrieve()
+                        .body(byte[].class);
+                if (bytes != null && bytes.length > 0) {
+                    return bytes;
+                }
+            } catch (HttpClientErrorException e) {
+                // tenta o próximo tamanho
+            }
+        }
+        return null;
     }
 
     private String palavra(ArasaacPictograma p, String padrao) {
