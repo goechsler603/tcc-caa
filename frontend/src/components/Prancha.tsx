@@ -7,6 +7,12 @@ const HORIZONTAL = {
   direita: 'flex-end',
 } as const
 
+const TEXTO_ALINHADO = {
+  esquerda: 'left',
+  centro: 'center',
+  direita: 'right',
+} as const
+
 const VERTICAL = {
   topo: 'flex-start',
   meio: 'center',
@@ -36,11 +42,11 @@ export default function Prancha({
   }
 
   return (
-       <div
+    <div
       className="prancha"
       style={
         {
-          gridTemplateColumns: `repeat(${colunas}, 1fr)`,
+          gridTemplateColumns: `repeat(${colunas}, minmax(0, 1fr))`,
           '--cols': colunas,
           '--rows': linhas,
         } as CSSProperties
@@ -67,15 +73,24 @@ export default function Prancha({
           >
             {c && (
               <>
-                <div
-                  className="celula-conteudo"
-                  style={{
-                    alignItems: HORIZONTAL[c.alinhHorizontal],
-                    justifyContent: VERTICAL[c.alinhVertical],
-                  }}
-                >
+                <div className="celula-conteudo">
                   <img src={c.url} alt={c.texto} />
-                  {c.texto && <span className="celula-texto">{c.texto}</span>}
+                  {c.texto && (
+                    <div
+                      className="celula-texto-camada"
+                      style={{
+                        alignItems: HORIZONTAL[c.alinhHorizontal],
+                        justifyContent: VERTICAL[c.alinhVertical],
+                      }}
+                    >
+                      <span
+                        className="celula-texto"
+                        style={{ textAlign: TEXTO_ALINHADO[c.alinhHorizontal] }}
+                      >
+                        {c.texto}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <button
                   className="celula-remover"

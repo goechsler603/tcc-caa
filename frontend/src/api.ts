@@ -54,22 +54,53 @@ export const excluirPrancha = (id: number) =>
   requisitar<void>(`/api/pranchas/${id}`, { method: 'DELETE' })
 
 // Converte as células da tela ("linha-coluna" -> pictograma) para o formato da API
+// Tela -> API
 export function celulasParaDTO(celulas: Celulas): CelulaDTO[] {
-  return Object.entries(celulas).map(([chave, p]) => {
+  return Object.entries(celulas).map(([chave, c]) => {
     const [linha, coluna] = chave.split('-').map(Number)
-    return { linha, coluna, arasaacId: p.id, texto: p.palavra, imagemUrl: p.url }
+    return {
+      linha,
+      coluna,
+      arasaacId: c.arasaacId > 0 ? c.arasaacId : null,
+      texto: c.texto,
+      imagemUrl: c.url,
+      alinhHorizontal: c.alinhHorizontal,
+      alinhVertical: c.alinhVertical,
+      corBorda: c.corBorda,
+      corFundo: c.corFundo,
+    }
   })
 }
 
-// E o caminho de volta
+// API -> Tela (com valores padrão para pranchas salvas antes)
 export function dtoParaCelulas(lista: CelulaDTO[]): Celulas {
   const resultado: Celulas = {}
   for (const c of lista) {
     resultado[`${c.linha}-${c.coluna}`] = {
-      id: c.arasaacId ?? 0,
-      palavra: c.texto ?? '',
+      arasaacId: c.arasaacId ?? 0,
       url: c.imagemUrl ?? '',
+      texto: c.texto ?? '',
+      alinhHorizontal: (c.alinhHorizontal ?? 'centro') as AlinhHorizontal,
+      alinhVertical: (c.alinhVertical ?? 'base') as AlinhVertical,
+      corBorda: c.corBorda,
+      corFundo: c.corFundo,
     }
   }
   return resultado
+}
+export async function enviarImagem(
+  imagem: Blob,
+): Promise<{ id: number; url: string }> {
+  const form = new FormData()
+  form.append('arquivo', imagem, 'imagem.png')
+  // Sem cabeçalho Content-Type: o navegador define o do multipart sozinho
+  const res = await fetch('/api/imagens', { method: 'POST', body: form })
+  if (!res.ok) {
+    throw new Error(
+      res.status === 400 || res.status === 413
+        ? 'Imagem inválida ou grande demais.'
+        : `Erro ${res.status} ao enviar a imagem.`,
+    )
+  }
+  return res.json()
 }

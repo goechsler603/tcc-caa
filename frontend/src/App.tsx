@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import logoAma from './assets/logo-ama.png'
 import Prancha from './components/Prancha'
 import PictogramaSearchModal from './components/PictogramaSearchModal'
 import EditarCelulaModal from './components/EditarCelulaModal'
@@ -22,7 +23,7 @@ const limitar = (valor: number, min: number, max: number) =>
 
 const FORMATO_PADRAO = {
   alinhHorizontal: 'centro',
-  alinhVertical: 'meio',
+  alinhVertical: 'base',
   corBorda: null,
   corFundo: null,
 } as const
@@ -184,7 +185,9 @@ function App() {
       <div className={`app ${orientacao === 'landscape' ? 'paisagem' : 'retrato'}`}>
       <style>{`@page { size: A4 ${orientacao}; margin: 10mm; }`}</style>
       <aside className="sidebar">
-        <div className="logo">AMA</div>
+                <div className="logo">
+          <img src={logoAma} alt="AMA - Associação de Amigos do Autista" />
+        </div>
         <nav>
           <button className="nav-item ativo">Pranchas</button>
           <button className="nav-item" disabled title="Em breve">

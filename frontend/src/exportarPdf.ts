@@ -151,58 +151,48 @@ export async function exportarPdf({
     const tamanhoFonte = Math.min(20, Math.max(8, lado * 0.22)) // pt
     const alturaLinha = tamanhoFonte * 0.3528 * 1.2 // mm
 
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(tamanhoFonte)
-    doc.setTextColor(0)
-    const linhasTexto: string[] = celula.texto
-      ? (doc.splitTextToSize(celula.texto, interno) as string[]).slice(0, 2)
-      : []
-    const alturaTexto = linhasTexto.length * alturaLinha
-
+    // Imagem: sempre no centro da célula
     const url = urlDaImagem(celula)
     const imagem = imagens.get(url) ?? null
-    if (!imagem) falhas += 1
-
-    const espaco = imagem && linhasTexto.length > 0 ? lado * 0.02 : 0
-    let imgLargura = 0
-    let imgAltura = 0
     if (imagem) {
-      const maxLargura = lado * 0.6
-      const maxAltura = Math.max(interno - alturaTexto - espaco, lado * 0.1)
-      const escala = Math.min(maxLargura / imagem.w, maxAltura / imagem.h)
-      imgLargura = imagem.w * escala
-      imgAltura = imagem.h * escala
+      const caixa = lado * 0.56
+      const escala = Math.min(caixa / imagem.w, caixa / imagem.h)
+      const imgLargura = imagem.w * escala
+      const imgAltura = imagem.h * escala
+      doc.addImage(
+        imagem.dataUrl,
+        'PNG',
+        x + (lado - imgLargura) / 2,
+        y + (lado - imgAltura) / 2,
+        imgLargura,
+        imgAltura,
+        url,
+      )
+    } else {
+      falhas += 1
     }
 
-    // Alinhamento vertical do bloco (imagem + texto)
-    const alturaBloco = imgAltura + espaco + alturaTexto
-    let yBloco = y + margemInterna
-    if (celula.alinhVertical === 'meio') yBloco = y + (lado - alturaBloco) / 2
-    if (celula.alinhVertical === 'base') yBloco = y + lado - margemInterna - alturaBloco
+    // Texto: único elemento que recebe o alinhamento
+    if (celula.texto) {
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(tamanhoFonte)
+      doc.setTextColor(0)
+      const linhasTexto = (doc.splitTextToSize(celula.texto, interno) as string[]).slice(0, 2)
+      const alturaTexto = linhasTexto.length * alturaLinha
 
-    // Alinhamento horizontal
-    const xEsquerda = x + margemInterna
-    const xCentro = x + lado / 2
-    const xDireita = x + lado - margemInterna
-    const h = celula.alinhHorizontal
-    const xTexto = h === 'esquerda' ? xEsquerda : h === 'direita' ? xDireita : xCentro
-    const modo = h === 'esquerda' ? 'left' : h === 'direita' ? 'right' : 'center'
-    const xImagem =
-      h === 'esquerda'
-        ? xEsquerda
-        : h === 'direita'
-          ? xDireita - imgLargura
-          : xCentro - imgLargura / 2
+      let yTexto = y + margemInterna
+      if (celula.alinhVertical === 'meio') yTexto = y + (lado - alturaTexto) / 2
+      if (celula.alinhVertical === 'base') yTexto = y + lado - margemInterna - alturaTexto
 
-    if (imagem) {
-      doc.addImage(imagem.dataUrl, 'PNG', xImagem, yBloco, imgLargura, imgAltura, url)
-    }
-    linhasTexto.forEach((texto, i) => {
-      doc.text(texto, xTexto, yBloco + imgAltura + espaco + i * alturaLinha, {
-        align: modo,
-        baseline: 'top',
+      const h = celula.alinhHorizontal
+      const xTexto =
+        h === 'esquerda' ? x + margemInterna : h === 'direita' ? x + lado - margemInterna : x + lado / 2
+      const modo = h === 'esquerda' ? 'left' : h === 'direita' ? 'right' : 'center'
+
+      linhasTexto.forEach((texto, i) => {
+        doc.text(texto, xTexto, yTexto + i * alturaLinha, { align: modo, baseline: 'top' })
       })
-    })
+    }
   }
 
   // Crédito do ARASAAC (exigido pela licença)

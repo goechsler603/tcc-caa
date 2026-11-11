@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import type { Pictograma } from '../types'
+import { enviarImagem } from '../api'
+import { prepararImagem } from '../imagem'
 
 type Props = {
   onSelect: (p: Pictograma) => void
@@ -10,9 +12,11 @@ export default function PictogramaSearchModal({ onSelect, onClose }: Props) {
   const [busca, setBusca] = useState('')
   const [resultados, setResultados] = useState<Pictograma[]>([])
   const [carregando, setCarregando] = useState(false)
+  const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState('')
   const [buscou, setBuscou] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const arquivoRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -43,6 +47,24 @@ export default function PictogramaSearchModal({ onSelect, onClose }: Props) {
     }
   }
 
+  async function aoEscolherArquivo(e: ChangeEvent<HTMLInputElement>) {
+    const arquivo = e.target.files?.[0]
+    e.target.value = '' // permite escolher o mesmo arquivo de novo
+    if (!arquivo) return
+
+    setEnviando(true)
+    setErro('')
+    try {
+      const png = await prepararImagem(arquivo)
+      const { url } = await enviarImagem(png)
+      // id 0 = imagem própria (não vem do ARASAAC); sem texto, a pessoa escolhe depois
+      onSelect({ id: 0, palavra: '', url })
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : 'Não foi possível enviar a imagem.')
+      setEnviando(false)
+    }
+  }
+
   return (
     <div className="modal-fundo" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -62,6 +84,24 @@ export default function PictogramaSearchModal({ onSelect, onClose }: Props) {
             placeholder="Digite uma palavra (ex.: casa)"
           />
           <button onClick={buscar}>Buscar</button>
+        </div>
+
+        <div className="modal-upload">
+          <span>ou use uma imagem do computador:</span>
+          <button
+            type="button"
+            onClick={() => arquivoRef.current?.click()}
+            disabled={enviando}
+          >
+            {enviando ? 'Enviando…' : 'Enviar imagem'}
+          </button>
+          <input
+            ref={arquivoRef}
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={aoEscolherArquivo}
+          />
         </div>
 
         <div className="modal-corpo">
