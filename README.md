@@ -10,8 +10,8 @@ React, Spring Boot, PostgreSQL, Keycloak, API do ARASAAC.
 ## Como rodar
 1. Copie `.env.example` para `.env`
 2. Suba o banco: `docker compose up -d`
-3. Backend: `cd backend && ./mvnw spring-boot:run`
-4. Frontend: `cd frontend && npm install && npm run dev`
+3. Backend: da pasta do backend rode: `./mvnw spring-boot:run`
+4. Frontend: da pasta do backend rode: `npm install && npm run dev`
 
 ## Créditos
 Pictogramas: ARASAAC (https://arasaac.org), licença CC BY-NC-SA,
