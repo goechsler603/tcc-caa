@@ -87,15 +87,10 @@ body {
 }
 
 .faixa {
-  height: 28px;
+  height: 44px;
   margin: 0 -24px 16px;
-  background: repeating-linear-gradient(
-    90deg,
-    #e53935 0 28px,
-    #1e4fd8 28px 56px,
-    #fdd835 56px 84px,
-    #5b8def 84px 112px
-  );
+  background: url('./assets/faixa-quebra-cabeca.svg') repeat-x left top;
+  background-size: auto 44spx;
 }
 
 /* Barra de ferramentas */
