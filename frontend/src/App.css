@@ -577,3 +577,67 @@ body {
 .centralizado {
   text-align: center;
 }
+/* Barra lateral: textos centralizados */
+.sidebar .nav-item {
+  text-align: center;
+}
+
+/* Área do usuário */
+.sidebar-rodape {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.usuario-cartao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.usuario-avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #dcecfb;
+  color: #0b5cc6;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.usuario-nome {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.botao-sair {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.botao-sair:hover,
+.botao-sair:focus-visible {
+  background: #fff;
+  color: #0b5cc6;
+  outline: none;
+}

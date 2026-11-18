@@ -234,15 +234,15 @@ function App() {
           <button className="nav-item" disabled title="Em breve">
             Arquivos
           </button>
-          <button className="nav-item" disabled title="Em breve">
-            Pictogramas
-          </button>
         </nav>
         <div className="sidebar-rodape">
-          <div className="usuario-logado" title={usuario}>
-            👤 {usuario}
+          <div className="usuario-cartao" title={usuario}>
+            <span className="usuario-avatar" aria-hidden="true">
+              {usuario.charAt(0).toUpperCase()}
+            </span>
+            <span className="usuario-nome">{usuario}</span>
           </div>
-          <button className="nav-item" onClick={sair}>
+          <button className="botao-sair" onClick={sair}>
             Sair
           </button>
         </div>
