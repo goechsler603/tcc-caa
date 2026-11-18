@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import type { Pictograma } from '../types'
 import { enviarImagem } from '../api'
+import { apiFetch } from '../http'
 import { prepararImagem } from '../imagem'
 
 type Props = {
@@ -35,7 +36,7 @@ export default function PictogramaSearchModal({ onSelect, onClose }: Props) {
     setCarregando(true)
     setErro('')
     try {
-      const res = await fetch(`/api/pictogramas?busca=${encodeURIComponent(busca)}`)
+      const res = await apiFetch(`/api/pictogramas?busca=${encodeURIComponent(busca)}`)
       if (!res.ok) throw new Error()
       setResultados(await res.json())
       setBuscou(true)

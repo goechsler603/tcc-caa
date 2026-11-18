@@ -4,8 +4,8 @@ import logoAma from './assets/logo-ama.png'
 import Prancha from './components/Prancha'
 import PictogramaSearchModal from './components/PictogramaSearchModal'
 import EditarCelulaModal from './components/EditarCelulaModal'
+import LoginPage from './components/LoginPage'
 import type { Celula, Celulas, Pictograma } from './types'
-import { exportarPdf } from './exportarPdf'
 import {
   atualizarPrancha,
   buscarPrancha,
@@ -17,6 +17,9 @@ import {
   type PranchaDTO,
   type PranchaResumo,
 } from './api'
+import { sair as encerrarSessao, sessaoAtual } from './apiAuth'
+import { EVENTO_SESSAO_EXPIRADA } from './http'
+import { exportarPdf } from './exportarPdf'
 
 const limitar = (valor: number, min: number, max: number) =>
   Math.min(max, Math.max(min, valor))
@@ -29,6 +32,9 @@ const FORMATO_PADRAO = {
 } as const
 
 function App() {
+  const [usuario, setUsuario] = useState<string | null>(null)
+  const [verificando, setVerificando] = useState(true)
+
   const [pranchaId, setPranchaId] = useState<number | null>(null)
   const [titulo, setTitulo] = useState('Prancha 1')
   const [colunas, setColunas] = useState(4)
@@ -36,16 +42,34 @@ function App() {
   const [celulas, setCelulas] = useState<Celulas>({})
   const [buscando, setBuscando] = useState<string | null>(null)
   const [editando, setEditando] = useState<string | null>(null)
-  const [orientacao, setOrientacao] = useState<'landscape' | 'portrait'>('landscape')
+
   const [salvas, setSalvas] = useState<PranchaResumo[]>([])
   const [mensagem, setMensagem] = useState('')
   const [ocupado, setOcupado] = useState(false)
+  const [orientacao, setOrientacao] = useState<'landscape' | 'portrait'>('landscape')
 
+  // Ao abrir a tela: já existe uma sessão ativa?
   useEffect(() => {
+    sessaoAtual()
+      .then((s) => setUsuario(s.autenticado ? s.usuario : null))
+      .catch(() => setUsuario(null))
+      .finally(() => setVerificando(false))
+  }, [])
+
+  // Sessão expirada em qualquer requisição: volta ao login
+  useEffect(() => {
+    const aoExpirar = () => setUsuario(null)
+    window.addEventListener(EVENTO_SESSAO_EXPIRADA, aoExpirar)
+    return () => window.removeEventListener(EVENTO_SESSAO_EXPIRADA, aoExpirar)
+  }, [])
+
+  // Com usuário logado, carrega a lista de pranchas salvas
+  useEffect(() => {
+    if (!usuario) return
     listarPranchas()
       .then(setSalvas)
       .catch(() => setMensagem('Não foi possível carregar as pranchas salvas.'))
-  }, [])
+  }, [usuario])
 
   function aoClicarCelula(chave: string) {
     if (celulas[chave]) setEditando(chave)
@@ -142,10 +166,9 @@ function App() {
     } finally {
       setOcupado(false)
     }
-
   }
 
-   async function baixarPdf() {
+  async function baixarPdf() {
     setOcupado(true)
     setMensagem('Gerando PDF...')
     try {
@@ -160,7 +183,7 @@ function App() {
       setMensagem(
         `Não foi possível gerar o PDF: ${e instanceof Error ? e.message : 'erro desconhecido'}`,
       )
-    }  finally {
+    } finally {
       setOcupado(false)
     }
   }
@@ -181,11 +204,29 @@ function App() {
     }
   }
 
+  async function sair() {
+    try {
+      await encerrarSessao()
+    } finally {
+      // limpa a memória, para a próxima pessoa não ver a prancha anterior
+      reiniciar()
+      setSalvas([])
+      setMensagem('')
+      setBuscando(null)
+      setEditando(null)
+      setUsuario(null)
+    }
+  }
+
+  if (verificando) return <p className="centralizado">Carregando…</p>
+  if (!usuario) return <LoginPage onEntrou={setUsuario} />
+
   return (
-      <div className={`app ${orientacao === 'landscape' ? 'paisagem' : 'retrato'}`}>
+    <div className={`app ${orientacao === 'landscape' ? 'paisagem' : 'retrato'}`}>
       <style>{`@page { size: A4 ${orientacao}; margin: 10mm; }`}</style>
+
       <aside className="sidebar">
-                <div className="logo">
+        <div className="logo">
           <img src={logoAma} alt="AMA - Associação de Amigos do Autista" />
         </div>
         <nav>
@@ -198,8 +239,11 @@ function App() {
           </button>
         </nav>
         <div className="sidebar-rodape">
-          <button className="nav-item" disabled>
-            Usuário
+          <div className="usuario-logado" title={usuario}>
+            👤 {usuario}
+          </div>
+          <button className="nav-item" onClick={sair}>
+            Sair
           </button>
         </div>
       </aside>
@@ -208,21 +252,6 @@ function App() {
         <div className="faixa" />
 
         <div className="barra">
-          
-                    <select
-            value={orientacao}
-            onChange={(e) => setOrientacao(e.target.value as 'landscape' | 'portrait')}
-            aria-label="Orientação da folha"
-          >
-            <option value="landscape">Folha: paisagem</option>
-            <option value="portrait">Folha: retrato</option>
-          </select>
-          <button className="botao" onClick={baixarPdf} disabled={ocupado}>
-            Baixar PDF
-          </button>
-          <button className="botao" onClick={() => window.print()} disabled={ocupado}>
-            Imprimir
-          </button>
           <button className="botao" onClick={novaPrancha} disabled={ocupado}>
             + Nova Prancha
           </button>
@@ -266,6 +295,20 @@ function App() {
               }
             />
           </label>
+          <select
+            value={orientacao}
+            onChange={(e) => setOrientacao(e.target.value as 'landscape' | 'portrait')}
+            aria-label="Orientação da folha"
+          >
+            <option value="landscape">Folha: paisagem</option>
+            <option value="portrait">Folha: retrato</option>
+          </select>
+          <button className="botao" onClick={baixarPdf} disabled={ocupado}>
+            Baixar PDF
+          </button>
+          <button className="botao" onClick={() => window.print()} disabled={ocupado}>
+            Imprimir
+          </button>
           {pranchaId !== null && (
             <button className="botao perigo" onClick={excluir} disabled={ocupado}>
               Excluir

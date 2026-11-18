@@ -1,4 +1,5 @@
-import type { Celulas } from './types'
+import { apiFetch } from './http'
+import type { AlinhHorizontal, AlinhVertical, Celulas } from './types'
 
 export type CelulaDTO = {
   linha: number
@@ -6,6 +7,10 @@ export type CelulaDTO = {
   arasaacId: number | null
   texto: string | null
   imagemUrl: string | null
+  alinhHorizontal: string | null
+  alinhVertical: string | null
+  corBorda: string | null
+  corFundo: string | null
 }
 
 export type PranchaDTO = {
@@ -24,7 +29,7 @@ export type PranchaResumo = {
 }
 
 async function requisitar<T>(url: string, opcoes?: RequestInit): Promise<T> {
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     headers: { 'Content-Type': 'application/json' },
     ...opcoes,
   })
@@ -53,7 +58,23 @@ export const atualizarPrancha = (id: number, dados: PranchaDTO) =>
 export const excluirPrancha = (id: number) =>
   requisitar<void>(`/api/pranchas/${id}`, { method: 'DELETE' })
 
-// Converte as células da tela ("linha-coluna" -> pictograma) para o formato da API
+export async function enviarImagem(
+  imagem: Blob,
+): Promise<{ id: number; url: string }> {
+  const form = new FormData()
+  form.append('arquivo', imagem, 'imagem.png')
+  // Sem cabeçalho Content-Type: o navegador define o do multipart sozinho
+  const res = await apiFetch('/api/imagens', { method: 'POST', body: form })
+  if (!res.ok) {
+    throw new Error(
+      res.status === 400 || res.status === 413
+        ? 'Imagem inválida ou grande demais.'
+        : `Erro ${res.status} ao enviar a imagem.`,
+    )
+  }
+  return res.json()
+}
+
 // Tela -> API
 export function celulasParaDTO(celulas: Celulas): CelulaDTO[] {
   return Object.entries(celulas).map(([chave, c]) => {
@@ -87,20 +108,4 @@ export function dtoParaCelulas(lista: CelulaDTO[]): Celulas {
     }
   }
   return resultado
-}
-export async function enviarImagem(
-  imagem: Blob,
-): Promise<{ id: number; url: string }> {
-  const form = new FormData()
-  form.append('arquivo', imagem, 'imagem.png')
-  // Sem cabeçalho Content-Type: o navegador define o do multipart sozinho
-  const res = await fetch('/api/imagens', { method: 'POST', body: form })
-  if (!res.ok) {
-    throw new Error(
-      res.status === 400 || res.status === 413
-        ? 'Imagem inválida ou grande demais.'
-        : `Erro ${res.status} ao enviar a imagem.`,
-    )
-  }
-  return res.json()
 }
