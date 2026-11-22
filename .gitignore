@@ -17,3 +17,5 @@ node_modules/ dist/
 # Sistema
 
 .DS_Store Thumbs.db
+# Produção (segredos)
+.env.prod
