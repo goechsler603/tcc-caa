@@ -17,3 +17,12 @@ Só as portas 80 e 443 ficam abertas; banco e backend ficam na rede interna do D
 - `docker compose -f docker-compose.prod.yml ps`
 - `docker compose -f docker-compose.prod.yml logs -f backend`
 - Saúde da API: `curl https://SEU_DOMINIO/api/health`
+
+## Problemas conhecidos (VPS Hostinger com template Docker)
+O template já traz um **Traefik** (`traefik-traefik-1`) ocupando as portas 80 e 443. Como este projeto usa o Caddy,
+pare o Traefik e impeça que ele volte a subir:
+```
+docker stop traefik-traefik-1
+docker update --restart=no traefik-traefik-1
+```
+Os serviços `web` e `backend` usam `dns: 1.1.1.1 / 8.8.8.8` porque o DNS do servidor (127.0.0.53) não funciona dentro dos contêineres.

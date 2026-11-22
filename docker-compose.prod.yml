@@ -19,6 +19,10 @@ services:
   backend:
     build: ./backend
     restart: unless-stopped
+    # DNS público: o 127.0.0.53 copiado do servidor não funciona dentro do contêiner
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     depends_on:
       db:
         condition: service_healthy
@@ -36,6 +40,10 @@ services:
   web:
     build: ./frontend
     restart: unless-stopped
+    # DNS público: o 127.0.0.53 copiado do servidor não funciona dentro do contêiner
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     depends_on:
       - backend
     environment:
