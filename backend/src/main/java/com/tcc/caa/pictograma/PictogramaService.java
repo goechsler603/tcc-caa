@@ -18,7 +18,16 @@ public class PictogramaService {
     private static final String IMAGEM_GRANDE = "https://static.arasaac.org/pictograms/{id}/{id}_500.png";
     private static final String IMAGEM_MEDIA = "https://static.arasaac.org/pictograms/{id}/{id}_300.png";
 
-    private final RestClient restClient = RestClient.create();
+    private final RestClient restClient;
+
+    public PictogramaService() {
+        this(RestClient.create());
+    }
+
+    // Permite injetar um RestClient nos testes (sem chamar a API real do ARASAAC)
+    PictogramaService(RestClient restClient) {
+        this.restClient = restClient;
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     record ArasaacPictograma(@JsonProperty("_id") long id, List<Keyword> keywords) {}
