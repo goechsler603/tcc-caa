@@ -85,7 +85,7 @@ export default function Prancha({
                     >
                       <span
                         className="celula-texto"
-                        style={{ textAlign: TEXTO_ALINHADO[c.alinhHorizontal] }}
+                        style={{ textAlign: TEXTO_ALINHADO[c.alinhHorizontal], color: c.corTexto }}
                       >
                         {c.texto}
                       </span>

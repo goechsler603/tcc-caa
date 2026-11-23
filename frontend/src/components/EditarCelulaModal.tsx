@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import type { AlinhHorizontal, AlinhVertical, Celula } from '../types'
+import type { AlinhHorizontal, AlinhVertical, Celula, CorTexto } from '../types'
 
 type Props = {
   celula: Celula
@@ -19,6 +19,11 @@ const VERTICAL: { valor: AlinhVertical; rotulo: string }[] = [
   { valor: 'topo', rotulo: 'Topo' },
   { valor: 'meio', rotulo: 'Meio' },
   { valor: 'base', rotulo: 'Base' },
+]
+
+const COR_TEXTO: { valor: CorTexto; rotulo: string }[] = [
+  { valor: '#000000', rotulo: 'Preta' },
+  { valor: '#ffffff', rotulo: 'Branca' },
 ]
 
 function CampoCor({
@@ -108,6 +113,23 @@ export default function EditarCelulaModal({
                   className={celula.alinhVertical === o.valor ? 'opcao ativa' : 'opcao'}
                   aria-pressed={celula.alinhVertical === o.valor}
                   onClick={() => onChange({ ...celula, alinhVertical: o.valor })}
+                >
+                  {o.rotulo}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grupo">
+            <span>Cor da fonte</span>
+            <div className="grupo-botoes">
+              {COR_TEXTO.map((o) => (
+                <button
+                  key={o.valor}
+                  type="button"
+                  className={celula.corTexto === o.valor ? 'opcao ativa' : 'opcao'}
+                  aria-pressed={celula.corTexto === o.valor}
+                  onClick={() => onChange({ ...celula, corTexto: o.valor })}
                 >
                   {o.rotulo}
                 </button>

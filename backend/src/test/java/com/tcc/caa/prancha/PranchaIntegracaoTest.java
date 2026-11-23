@@ -24,7 +24,7 @@ class PranchaIntegracaoTest extends PostgresTestBase {
 
     private static final String CELULA =
             "{\"linha\":0,\"coluna\":0,\"arasaacId\":2475,\"texto\":\"casa\","
-                    + "\"alinhHorizontal\":\"centro\",\"alinhVertical\":\"base\","
+                    + "\"alinhHorizontal\":\"centro\",\"alinhVertical\":\"base\",\"corTexto\":\"#000000\","
                     + "\"corBorda\":\"#112233\",\"corFundo\":\"#ffffff\"}";
 
     @Autowired
@@ -118,6 +118,22 @@ class PranchaIntegracaoTest extends PostgresTestBase {
         mvc.perform(autenticado(post("/api/pranchas"), prancha("Grande", 9, 3, "")))
                 .andExpect(status().isBadRequest());
         mvc.perform(autenticado(post("/api/pranchas"), prancha("Alta", 4, 7, "")))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void salvaEDevolveACorDaFonte() throws Exception {
+        String branca = CELULA.replace("#000000", "#ffffff");
+        long id = criar(prancha("Fonte branca", 4, 3, branca));
+
+        mvc.perform(get("/api/pranchas/" + id).with(user("admin")))
+                .andExpect(jsonPath("$.celulas[0].corTexto").value("#ffffff"));
+    }
+
+    @Test
+    void rejeitaCorDaFonteQueNaoSejaPretaOuBranca() throws Exception {
+        String vermelha = CELULA.replace("\"corTexto\":\"#000000\"", "\"corTexto\":\"#ff0000\"");
+        mvc.perform(autenticado(post("/api/pranchas"), prancha("Fonte", 4, 3, vermelha)))
                 .andExpect(status().isBadRequest());
     }
 

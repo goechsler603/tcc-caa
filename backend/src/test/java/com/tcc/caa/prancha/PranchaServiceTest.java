@@ -28,7 +28,7 @@ class PranchaServiceTest {
     }
 
     private static CelulaDTO celula(int linha, int coluna, String texto) {
-        return new CelulaDTO(linha, coluna, 10L, texto, null, "centro", "base", "#000000", "#ffffff");
+        return new CelulaDTO(linha, coluna, 10L, texto, null, "centro", "base", "#000000", "#000000", "#ffffff");
     }
 
     private static PranchaDTO dto(String titulo, int colunas, int linhas, List<CelulaDTO> celulas) {
@@ -44,6 +44,16 @@ class PranchaServiceTest {
         assertThat(resultado.titulo()).isEqualTo("Rotina");
         assertThat(resultado.colunas()).isEqualTo(3);
         assertThat(resultado.celulas()).hasSize(2);
+    }
+
+    @Test
+    void criarMantemACorDaFonte() {
+        when(repository.save(any(Prancha.class))).thenAnswer(i -> i.getArgument(0));
+        CelulaDTO branca = new CelulaDTO(0, 0, 10L, "a", null, "centro", "base", "#ffffff", null, null);
+
+        PranchaDTO resultado = service().criar(dto("Fonte", 2, 2, List.of(branca)));
+
+        assertThat(resultado.celulas()).extracting(CelulaDTO::corTexto).containsExactly("#ffffff");
     }
 
     @Test

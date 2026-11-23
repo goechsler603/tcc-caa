@@ -2,6 +2,8 @@ export type AlinhHorizontal = 'esquerda' | 'centro' | 'direita'
 export type AlinhVertical = 'topo' | 'meio' | 'base'
 
 // Resultado da busca no ARASAAC
+export type CorTexto = '#000000' | '#ffffff'
+
 export type Pictograma = {
   id: number
   palavra: string
@@ -15,6 +17,7 @@ export type Celula = {
   texto: string
   alinhHorizontal: AlinhHorizontal
   alinhVertical: AlinhVertical
+  corTexto: CorTexto // fonte preta ou branca
   corBorda: string | null
   corFundo: string | null
 }

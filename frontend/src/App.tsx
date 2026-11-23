@@ -5,6 +5,7 @@ import Prancha from './components/Prancha'
 import PictogramaSearchModal from './components/PictogramaSearchModal'
 import EditarCelulaModal from './components/EditarCelulaModal'
 import LoginPage from './components/LoginPage'
+import CampoNumero from './components/CampoNumero'
 import type { Celula, Celulas, Pictograma } from './types'
 import {
   atualizarPrancha,
@@ -21,12 +22,10 @@ import { sair as encerrarSessao, sessaoAtual } from './apiAuth'
 import { EVENTO_SESSAO_EXPIRADA } from './http'
 import { exportarPdf } from './exportarPdf'
 
-const limitar = (valor: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, valor))
-
 const FORMATO_PADRAO = {
   alinhHorizontal: 'centro',
   alinhVertical: 'base',
+  corTexto: '#000000',
   corBorda: null,
   corFundo: null,
 } as const
@@ -271,30 +270,8 @@ function App() {
               </option>
             ))}
           </select>
-          <label className="campo">
-            Colunas
-            <input
-              type="number"
-              min={1}
-              max={8}
-              value={colunas}
-              onChange={(e) =>
-                setColunas(limitar(Number(e.target.value) || 1, 1, 8))
-              }
-            />
-          </label>
-          <label className="campo">
-            Linhas
-            <input
-              type="number"
-              min={1}
-              max={6}
-              value={linhas}
-              onChange={(e) =>
-                setLinhas(limitar(Number(e.target.value) || 1, 1, 6))
-              }
-            />
-          </label>
+          <CampoNumero rotulo="Colunas" valor={colunas} min={1} max={8} onChange={setColunas} />
+          <CampoNumero rotulo="Linhas" valor={linhas} min={1} max={6} onChange={setLinhas} />
           <select
             value={orientacao}
             onChange={(e) => setOrientacao(e.target.value as 'landscape' | 'portrait')}

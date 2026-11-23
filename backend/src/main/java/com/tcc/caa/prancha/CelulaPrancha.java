@@ -43,6 +43,9 @@ public class CelulaPrancha {
     @Column(name = "alinh_vertical", length = 10)
     private String alinhVertical;
 
+    @Column(name = "cor_texto", length = 9)
+    private String corTexto;
+
     @Column(name = "cor_borda", length = 9)
     private String corBorda;
 
@@ -53,6 +56,8 @@ public class CelulaPrancha {
     public void setAlinhHorizontal(String alinhHorizontal) { this.alinhHorizontal = alinhHorizontal; }
     public String getAlinhVertical() { return alinhVertical; }
     public void setAlinhVertical(String alinhVertical) { this.alinhVertical = alinhVertical; }
+    public String getCorTexto() { return corTexto; }
+    public void setCorTexto(String corTexto) { this.corTexto = corTexto; }
     public String getCorBorda() { return corBorda; }
     public void setCorBorda(String corBorda) { this.corBorda = corBorda; }
     public String getCorFundo() { return corFundo; }

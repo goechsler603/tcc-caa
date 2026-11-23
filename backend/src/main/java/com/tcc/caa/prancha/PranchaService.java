@@ -88,6 +88,7 @@ public class PranchaService {
             celula.setImagemUrl(c.imagemUrl());
             celula.setAlinhHorizontal(c.alinhHorizontal());
             celula.setAlinhVertical(c.alinhVertical());
+            celula.setCorTexto(c.corTexto());
             celula.setCorBorda(c.corBorda());
             celula.setCorFundo(c.corFundo());
             prancha.getCelulas().add(celula);
@@ -99,7 +100,7 @@ public class PranchaService {
                 .map(c -> new CelulaDTO(c.getLinha(), c.getColuna(),
                         c.getArasaacId(), c.getTexto(), c.getImagemUrl(),
                         c.getAlinhHorizontal(), c.getAlinhVertical(),
-                        c.getCorBorda(), c.getCorFundo()))
+                        c.getCorTexto(), c.getCorBorda(), c.getCorFundo()))
                 .toList();
         return new PranchaDTO(p.getId(), p.getTitulo(), p.getColunas(), p.getLinhas(), celulas);
     }

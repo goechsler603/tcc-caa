@@ -176,7 +176,8 @@ export async function exportarPdf({
     if (celula.texto) {
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(tamanhoFonte)
-      doc.setTextColor(0)
+      const [rt, gt, bt] = hexParaRgb(celula.corTexto)
+      doc.setTextColor(rt, gt, bt)
       const linhasTexto = (doc.splitTextToSize(celula.texto, interno) as string[]).slice(0, 2)
       const alturaTexto = linhasTexto.length * alturaLinha
 

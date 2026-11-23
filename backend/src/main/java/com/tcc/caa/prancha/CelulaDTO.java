@@ -12,5 +12,6 @@ public record CelulaDTO(
         @Size(max = 500) String imagemUrl,
         @Pattern(regexp = "esquerda|centro|direita") String alinhHorizontal,
         @Pattern(regexp = "topo|meio|base") String alinhVertical,
+        @Pattern(regexp = "#000000|#ffffff") String corTexto,
         @Pattern(regexp = "#[0-9a-fA-F]{6}") String corBorda,
         @Pattern(regexp = "#[0-9a-fA-F]{6}") String corFundo) {}

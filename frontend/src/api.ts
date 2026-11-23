@@ -1,5 +1,5 @@
 import { apiFetch } from './http'
-import type { AlinhHorizontal, AlinhVertical, Celulas } from './types'
+import type { AlinhHorizontal, AlinhVertical, CorTexto, Celulas } from './types'
 
 export type CelulaDTO = {
   linha: number
@@ -9,6 +9,7 @@ export type CelulaDTO = {
   imagemUrl: string | null
   alinhHorizontal: string | null
   alinhVertical: string | null
+  corTexto: string | null
   corBorda: string | null
   corFundo: string | null
 }
@@ -87,6 +88,7 @@ export function celulasParaDTO(celulas: Celulas): CelulaDTO[] {
       imagemUrl: c.url,
       alinhHorizontal: c.alinhHorizontal,
       alinhVertical: c.alinhVertical,
+      corTexto: c.corTexto,
       corBorda: c.corBorda,
       corFundo: c.corFundo,
     }
@@ -103,6 +105,7 @@ export function dtoParaCelulas(lista: CelulaDTO[]): Celulas {
       texto: c.texto ?? '',
       alinhHorizontal: (c.alinhHorizontal ?? 'centro') as AlinhHorizontal,
       alinhVertical: (c.alinhVertical ?? 'base') as AlinhVertical,
+      corTexto: (c.corTexto === '#ffffff' ? '#ffffff' : '#000000') as CorTexto,
       corBorda: c.corBorda,
       corFundo: c.corFundo,
     }
