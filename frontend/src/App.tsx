@@ -95,6 +95,20 @@ function App() {
     setCelulas((anterior) => ({ ...anterior, [chave]: nova }))
   }
 
+    function mover(origem: string, destino: string) {
+    if (origem === destino) return
+    setCelulas((anterior) => {
+      const a = anterior[origem]
+      if (!a) return anterior
+      const novo = { ...anterior }
+      const b = anterior[destino]
+      novo[destino] = a
+      if (b) novo[origem] = b
+      else delete novo[origem]
+      return novo
+    })
+  }
+
   function remover(chave: string) {
     setCelulas((anterior) => {
       const novo = { ...anterior }
@@ -313,6 +327,7 @@ function App() {
           celulas={celulas}
           onCelulaClick={aoClicarCelula}
           onRemover={remover}
+          onMover={mover}
         />
 
         <p className="credito">

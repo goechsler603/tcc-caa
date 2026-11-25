@@ -183,6 +183,20 @@ body {
   cursor: pointer;
 }
 
+.celula[draggable='true'] {
+  cursor: grab;
+}
+
+.celula.arrastando {
+  opacity: 0.4;
+}
+
+.celula.alvo {
+  background: #dff0ff;
+  outline: 3px dashed #2f6fbf;
+  outline-offset: -3px;
+}
+
 .celula:hover,
 .celula:focus-visible {
   background: #eef6ff;
